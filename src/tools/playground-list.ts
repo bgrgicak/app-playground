@@ -1,6 +1,6 @@
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 
-export const listToolName = 'playground/list';
+export const listToolName = 'playground_list';
 
 export const listToolDescription = `
 List all running WordPress Playground instances.

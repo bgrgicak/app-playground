@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 import { mcpRequest } from '../utils/http-client.js';
 
-export const discoverToolName = 'wordpress/discover';
+export const discoverToolName = 'wordpress_discover';
 
 export const discoverToolDescription = `
 Discover available WordPress abilities on a Playground instance.

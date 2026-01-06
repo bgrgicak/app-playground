@@ -55,27 +55,27 @@ EOF
 ```
 
 Expected: JSON response listing 7 tools:
-- `playground/spawn`
-- `playground/destroy`
-- `playground/list`
-- `playground/status`
-- `wordpress/discover`
-- `wordpress/execute`
-- `wordpress/install-code`
+- `playground_spawn`
+- `playground_destroy`
+- `playground_list`
+- `playground_status`
+- `wordpress_discover`
+- `wordpress_execute`
+- `wordpress_install_code`
 
-### 3. Test playground/list (Empty State)
+### 3. Test playground_list (Empty State)
 
 ```bash
 cat << 'EOF' | node dist/bin/playground-mcp.js 2>/dev/null
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground/list","arguments":{}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground_list","arguments":{}}}
 EOF
 ```
 
 Expected: Response showing `{"count": 0, "instances": []}`.
 
-### 4. Test playground/spawn
+### 4. Test playground_spawn
 
 **Note:** This test spawns a real WordPress Playground instance and may take 30-90 seconds.
 
@@ -83,7 +83,7 @@ Expected: Response showing `{"count": 0, "instances": []}`.
 cat << 'EOF' | timeout 120 node dist/bin/playground-mcp.js --verbose 2>&1
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground/spawn","arguments":{"name":"test-instance"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground_spawn","arguments":{"name":"test-instance"}}}
 EOF
 ```
 
@@ -106,25 +106,25 @@ curl -s http://localhost:9401/ | head -20
 
 Expected: HTML response from WordPress.
 
-### 6. Test playground/status
+### 6. Test playground_status
 
 ```bash
 # Replace INSTANCE_ID with the actual ID from spawn
 cat << 'EOF' | node dist/bin/playground-mcp.js 2>/dev/null
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground/status","arguments":{"instance_id":"INSTANCE_ID"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground_status","arguments":{"instance_id":"INSTANCE_ID"}}}
 EOF
 ```
 
-### 7. Test playground/destroy
+### 7. Test playground_destroy
 
 ```bash
 # Replace INSTANCE_ID with the actual ID
 cat << 'EOF' | node dist/bin/playground-mcp.js 2>/dev/null
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground/destroy","arguments":{"instance_id":"INSTANCE_ID"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground_destroy","arguments":{"instance_id":"INSTANCE_ID"}}}
 EOF
 ```
 
@@ -191,33 +191,33 @@ EOF
 )
 
 # Check if response contains expected tools
-if echo "$RESPONSE" | grep -q "playground/spawn"; then
-    echo "✓ tools/list returns playground/spawn"
+if echo "$RESPONSE" | grep -q "playground_spawn"; then
+    echo "✓ tools/list returns playground_spawn"
 else
-    echo "✗ tools/list missing playground/spawn"
+    echo "✗ tools/list missing playground_spawn"
     exit 1
 fi
 
-if echo "$RESPONSE" | grep -q "wordpress/discover"; then
-    echo "✓ tools/list returns wordpress/discover"
+if echo "$RESPONSE" | grep -q "wordpress_discover"; then
+    echo "✓ tools/list returns wordpress_discover"
 else
-    echo "✗ tools/list missing wordpress/discover"
+    echo "✗ tools/list missing wordpress_discover"
     exit 1
 fi
 
 echo ""
-echo "=== Testing playground/list (empty) ==="
+echo "=== Testing playground_list (empty) ==="
 RESPONSE=$(cat << 'EOF' | node dist/bin/playground-mcp.js 2>/dev/null
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground/list","arguments":{}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground_list","arguments":{}}}
 EOF
 )
 
 if echo "$RESPONSE" | grep -q '"count": 0'; then
-    echo "✓ playground/list returns empty list"
+    echo "✓ playground_list returns empty list"
 else
-    echo "✗ playground/list should return empty list"
+    echo "✗ playground_list should return empty list"
     exit 1
 fi
 
@@ -245,7 +245,7 @@ Expected: Error response with "Instance nonexistent not found".
 cat << 'EOF' | node dist/bin/playground-mcp.js 2>/dev/null
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground/destroy","arguments":{}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"playground_destroy","arguments":{}}}
 EOF
 ```
 
@@ -289,6 +289,6 @@ rm -rf ~/.playground-mcp
 
 1. **Plugin Installation**: The default blueprint attempts to install Abilities API and MCP Adapter plugins from GitHub releases. These URLs may not be available yet.
 
-2. **wordpress/discover and wordpress/execute**: These tools require the MCP Adapter plugin to be properly installed and configured on the Playground instance.
+2. **wordpress_discover and wordpress_execute**: These tools require the MCP Adapter plugin to be properly installed and configured on the Playground instance.
 
-3. **wordpress/install-code**: Falls back to manual instructions if the `core/run-php` ability is not available.
+3. **wordpress_install_code**: Falls back to manual instructions if the `core/run-php` ability is not available.

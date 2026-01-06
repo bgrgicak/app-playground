@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 import { mcpRequest } from '../utils/http-client.js';
 
-export const installCodeToolName = 'wordpress/install-code';
+export const installCodeToolName = 'wordpress_install_code';
 
 export const installCodeToolDescription = `
 Install custom PHP code as a must-use plugin on a Playground instance.

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 
-export const spawnToolName = 'playground/spawn';
+export const spawnToolName = 'playground_spawn';
 
 export const spawnToolDescription = `
 Create a new WordPress Playground instance.

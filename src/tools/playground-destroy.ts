@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 
-export const destroyToolName = 'playground/destroy';
+export const destroyToolName = 'playground_destroy';
 
 export const destroyToolDescription = `
 Destroy a WordPress Playground instance.

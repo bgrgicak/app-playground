@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 
-export const statusToolName = 'playground/status';
+export const statusToolName = 'playground_status';
 
 export const statusToolDescription = `
 Get detailed status of a specific WordPress Playground instance.

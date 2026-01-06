@@ -2,12 +2,12 @@ import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
 import { mcpRequest } from '../utils/http-client.js';
 
-export const executeToolName = 'wordpress/execute';
+export const executeToolName = 'wordpress_execute';
 
 export const executeToolDescription = `
 Execute a WordPress ability on a Playground instance.
 
-First use wordpress/discover to see available abilities, then use this tool
+First use wordpress_discover to see available abilities, then use this tool
 to execute them with the required parameters.
 `.trim();
 

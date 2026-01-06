@@ -56,18 +56,18 @@ Then configure:
 
 | Tool | Description |
 |------|-------------|
-| `playground/spawn` | Create a new WordPress Playground instance |
-| `playground/destroy` | Stop and remove an instance |
-| `playground/list` | List all running instances |
-| `playground/status` | Get detailed status of an instance |
+| `playground_spawn` | Create a new WordPress Playground instance |
+| `playground_destroy` | Stop and remove an instance |
+| `playground_list` | List all running instances |
+| `playground_status` | Get detailed status of an instance |
 
 ### WordPress Interaction
 
 | Tool | Description |
 |------|-------------|
-| `wordpress/discover` | List available WordPress abilities on an instance |
-| `wordpress/execute` | Execute a WordPress ability |
-| `wordpress/install-code` | Install custom PHP code as a mu-plugin |
+| `wordpress_discover` | List available WordPress abilities on an instance |
+| `wordpress_execute` | Execute a WordPress ability |
+| `wordpress_install_code` | Install custom PHP code as a mu-plugin |
 
 ## Example Usage
 
@@ -97,7 +97,7 @@ playground-mcp [OPTIONS]
 1. **playground-mcp** runs as an MCP server, communicating via STDIO
 2. When you spawn an instance, it uses `@wp-playground/cli` to start WordPress
 3. Each instance has the **Abilities API** and **MCP Adapter** pre-installed
-4. The **wordpress/*** tools proxy requests to the instance's MCP Adapter
+4. The **wordpress_*** tools proxy requests to the instance's MCP Adapter
 5. This allows AI to discover and use any registered WordPress ability
 
 ## Architecture
