@@ -1,0 +1,40 @@
+{
+  "name": "playground-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for orchestrating WordPress Playground instances",
+  "author": "",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "playground-mcp": "./dist/bin/playground-mcp.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/bin/playground-mcp.js",
+    "test": "vitest",
+    "lint": "eslint src/",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@wp-playground/cli": "^3.0.0",
+    "nanoid": "^5.1.5",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3",
+    "tsx": "^4.20.3",
+    "vitest": "^3.2.3",
+    "eslint": "^9.28.0"
+  },
+  "engines": {
+    "node": ">=20.18.0"
+  }
+}
