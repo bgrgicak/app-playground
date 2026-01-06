@@ -53,13 +53,18 @@ export class PlaygroundInstance {
   /**
    * Wait for the instance to be ready
    */
-  async waitUntilReady(timeoutMs: number = 60000): Promise<boolean> {
+  async waitUntilReady(timeoutMs: number = 90000): Promise<boolean> {
     logger.info(`Waiting for instance ${this.id} to be ready...`);
 
+    // Use exponential backoff starting at 100ms
+    // With 60 max attempts and exponential backoff, this will check:
+    // - Quickly at first (100ms, 150ms, 225ms, etc.)
+    // - Then settle into 2s intervals
+    // Total max wait time is still ~90 seconds
     const ready = await waitForEndpoint(
       this.webUrl,
-      Math.floor(timeoutMs / 1000),
-      1000
+      60,
+      100
     );
 
     if (ready) {

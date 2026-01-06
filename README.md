@@ -60,6 +60,7 @@ Then configure:
 | `playground_destroy` | Stop and remove an instance |
 | `playground_list` | List all running instances |
 | `playground_status` | Get detailed status of an instance |
+| `playground_verify` | Verify instance is fully operational and ready for WordPress operations |
 
 ### WordPress Interaction
 

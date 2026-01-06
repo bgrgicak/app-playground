@@ -9,11 +9,23 @@ Create a new WordPress Playground instance.
 Each instance runs WordPress with the Abilities API and MCP Adapter pre-installed,
 allowing you to discover and execute WordPress abilities.
 
-By default, this tool waits for the instance to be fully ready before returning (may take 60-90 seconds).
+Performance optimizations:
+- Required plugins are cached locally after first download (saves 20-40s on subsequent spawns)
+- Exponential backoff polling for faster ready detection
+
+By default, this tool waits for the instance to be fully ready before returning (typically 30-60 seconds first time, 10-30 seconds with cached plugins).
 Set wait_for_ready to false to return immediately with status 'starting', then use playground_status
 to poll until status becomes 'running'.
 
 Returns the instance ID, web URL, and MCP endpoint for the new instance.
+
+IMPORTANT WORKFLOW:
+After spawning, always verify the instance is accessible:
+1. Use the returned webUrl to check the instance is running
+2. Wait a few seconds for WordPress and plugins to fully initialize
+3. Before using wordpress_discover, verify the MCP endpoint is responding
+4. If wordpress_discover fails with "fetch failed", the instance may need more time to initialize
+5. The instance web interface is immediately accessible at webUrl for manual verification
 `.trim();
 
 export const spawnInputSchema = {

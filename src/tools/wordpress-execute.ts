@@ -7,8 +7,15 @@ export const executeToolName = 'wordpress_execute';
 export const executeToolDescription = `
 Execute a WordPress ability on a Playground instance.
 
-First use wordpress_discover to see available abilities, then use this tool
-to execute them with the required parameters.
+WORKFLOW:
+1. First ensure the instance is running with playground_status
+2. Use wordpress_discover to list available abilities and their parameter schemas
+3. Then use this tool to execute a specific ability with the required parameters
+
+The ability name should match exactly as returned by wordpress_discover (e.g., "core/create-post").
+Parameters should conform to the schema defined for that ability.
+
+Returns the JSON-RPC response from executing the WordPress ability.
 `.trim();
 
 export const executeInputSchema = {

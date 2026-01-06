@@ -10,8 +10,22 @@ Install custom PHP code as a must-use plugin on a Playground instance.
 This allows you to add new WordPress abilities or functionality dynamically.
 The code is installed as a mu-plugin and is immediately active.
 
-IMPORTANT: The code should be valid PHP and should not include <?php opening tags
-if you're providing just the function/class definitions.
+PREREQUISITES:
+- The instance must be running (status 'running')
+- The code must be valid, complete PHP including <?php opening tag
+
+WORKFLOW:
+1. Verify instance is running with playground_status
+2. Write complete PHP code with proper WordPress hooks/filters
+3. Install using this tool
+4. Wait a moment for WordPress to detect the new mu-plugin
+5. Use wordpress_discover to verify new abilities are registered (if applicable)
+
+NOTES:
+- This feature may not be available on all instances (depends on core/run-php ability)
+- If unavailable, you'll receive manual installation instructions
+- The mu-plugin is activated immediately, no need to enable it in WP admin
+- For testing, you can visit the instance webUrl to verify functionality
 `.trim();
 
 export const installCodeInputSchema = {

@@ -52,6 +52,13 @@ import {
   handleInstallCode,
 } from './wordpress-install-code.js';
 
+import {
+  verifyToolName,
+  verifyToolDescription,
+  VerifyArgsSchema,
+  handleVerify,
+} from './playground-verify.js';
+
 /**
  * Register all tools with the MCP server
  */
@@ -216,5 +223,27 @@ export function registerTools(
     }
   );
 
-  logger.info('Registered 7 tools');
+  // playground/verify
+  server.registerTool(
+    verifyToolName,
+    {
+      description: verifyToolDescription,
+      inputSchema: {
+        instance_id: z.string().describe('The ID of the instance to verify'),
+      },
+    },
+    async (args) => {
+      logger.debug(`Handling ${verifyToolName}`, args);
+      try {
+        const result = await handleVerify(orchestrator, args);
+        return { content: [{ type: 'text', text: result }] };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`Error handling ${verifyToolName}`, error);
+        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+      }
+    }
+  );
+
+  logger.info('Registered 8 tools');
 }
