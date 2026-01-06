@@ -11,6 +11,7 @@ import type {
 import { createDefaultBlueprint, mergeBlueprints } from '../blueprints/default.js';
 import { findAvailablePort } from '../utils/ports.js';
 import { logger } from '../utils/logger.js';
+import { withSuppressedStdout } from '../utils/suppress-stdout.js';
 
 export class PlaygroundOrchestrator {
   private instances = new Map<string, PlaygroundInstance>();
@@ -59,14 +60,19 @@ export class PlaygroundOrchestrator {
     try {
       logger.debug('Starting Playground CLI', { port, phpVersion, wpVersion });
 
-      const server: RunCLIServer = await runCLI({
-        command: 'server',
-        port,
-        php: phpVersion as '8.4' | '8.3' | '8.2' | '8.1' | '8.0' | '7.4',
-        wp: wpVersion,
-        login: true,
-        blueprint,
-      });
+      // Wrap runCLI to suppress stdout - the CLI writes progress messages
+      // to stdout which would break the MCP JSON-RPC protocol
+      const server: RunCLIServer = await withSuppressedStdout(() =>
+        runCLI({
+          command: 'server',
+          port,
+          php: phpVersion as '8.4' | '8.3' | '8.2' | '8.1' | '8.0' | '7.4',
+          wp: wpVersion,
+          login: true,
+          blueprint,
+          quiet: true,
+        })
+      );
 
       // Create instance wrapper
       const instance = new PlaygroundInstance({
