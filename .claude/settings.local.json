@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:test-driven-development)",
+      "Skill(superpowers:test-driven-development:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx:*)",
+      "Bash(node_modules/.bin/wp-playground server:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

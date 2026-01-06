@@ -80,9 +80,11 @@ export async function waitForEndpoint(
       const response = await fetch(url, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
+        redirect: 'manual', // Don't follow redirects, just detect server is up
       });
-      if (response.ok || response.status === 404) {
-        // 404 is OK - it means the server is up, just that path doesn't exist
+      // Any HTTP response means the server is up and responding
+      // This includes: 200 OK, 302 redirect, 404 not found, etc.
+      if (response.status > 0) {
         return true;
       }
     } catch {

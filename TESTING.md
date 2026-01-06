@@ -17,6 +17,51 @@ npm install
 npm run build
 ```
 
+## Automated Integration Tests
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run only the fast integration tests (recommended for CI)
+npm test -- --exclude=orchestrator.test.ts
+
+# Run specific test file
+npm test src/__tests__/integration/tools.test.ts
+
+# Run tests in watch mode
+npm test -- --watch
+```
+
+### Test Files
+
+- **tools.test.ts**: Fast integration tests (~500ms) that verify the MCP server and orchestrator initialize correctly without spawning real WordPress instances
+- **orchestrator.test.ts**: Slow integration tests (3-5 minutes) that spawn real WordPress Playground instances and verify full end-to-end functionality
+
+**Note:** The orchestrator tests require WordPress Playground to download and initialize WordPress, which can take several minutes. They are intended for manual verification rather than CI/CD pipelines.
+
+### Why Integration Tests Over Unit Tests?
+
+This project prioritizes integration tests because:
+1. The core value is in how components work together via the MCP protocol
+2. Mocking WordPress Playground CLI would provide little value
+3. Integration tests catch real protocol integration issues
+4. The codebase is small enough that integration tests provide better ROI
+
+### CI/CD Recommendations
+
+For continuous integration:
+- Run the fast integration tests (`tools.test.ts`)
+- Skip the slow orchestrator tests in automated pipelines
+- Use manual E2E testing for full verification before releases
+
+```bash
+# Recommended CI command
+npm test -- --exclude=orchestrator.test.ts
+```
+
 ## Manual Testing
 
 ### 1. Test CLI Help

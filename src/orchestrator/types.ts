@@ -7,6 +7,7 @@ export interface SpawnOptions {
   php?: '8.4' | '8.3' | '8.2' | '8.1' | '8.0' | '7.4';
   wp?: string;  // WordPress version: 'latest', '6.5', '6.4', etc.
   blueprint?: Blueprint;
+  waitForReady?: boolean;  // If false, returns immediately while instance starts in background
 }
 
 // Minimal blueprint structure (subset of full Playground blueprint)

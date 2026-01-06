@@ -47,8 +47,9 @@ export class PlaygroundOrchestrator {
     const name = options.name ?? `playground-${id}`;
     const phpVersion = options.php ?? '8.3';
     const wpVersion = options.wp ?? 'latest';
+    const waitForReady = options.waitForReady ?? true;
 
-    logger.info(`Spawning instance ${id}...`, { name, phpVersion, wpVersion });
+    logger.info(`Spawning instance ${id}...`, { name, phpVersion, wpVersion, waitForReady });
 
     // Find available port
     const port = await findAvailablePort(this.startPort);
@@ -84,17 +85,41 @@ export class PlaygroundOrchestrator {
         wpVersion,
       });
 
+      // Store instance immediately (even if not ready yet)
+      this.instances.set(id, instance);
+      this.store.save(instance.metadata());
+
+      // If waitForReady is false, return immediately with 'starting' status
+      if (!waitForReady) {
+        logger.info(`Instance ${id} spawning in background`, {
+          webUrl: instance.webUrl,
+          mcpEndpoint: instance.mcpEndpoint,
+        });
+
+        // Start readiness check in background
+        instance.waitUntilReady(90000).catch(err => {
+          logger.error(`Instance ${id} failed to become ready`, err);
+        });
+
+        return {
+          instance_id: id,
+          name,
+          web_url: instance.webUrl,
+          mcp_endpoint: instance.mcpEndpoint,
+          admin_url: instance.adminUrl,
+          status: instance.status,
+        };
+      }
+
       // Wait for instance to be ready
       const ready = await instance.waitUntilReady(90000);
 
       if (!ready) {
+        this.instances.delete(id);
+        this.store.delete(id);
         await instance.stop();
         throw new Error('Instance failed to start within timeout');
       }
-
-      // Store instance
-      this.instances.set(id, instance);
-      this.store.save(instance.metadata());
 
       logger.info(`Instance ${id} spawned successfully`, {
         webUrl: instance.webUrl,
@@ -112,6 +137,8 @@ export class PlaygroundOrchestrator {
 
     } catch (error) {
       logger.error(`Failed to spawn instance ${id}`, error);
+      this.instances.delete(id);
+      this.store.delete(id);
       throw error;
     }
   }
