@@ -135,12 +135,80 @@ playground-mcp [OPTIONS]
 
 ## Development
 
+### Building the Project
+
 ```bash
 git clone <repository>
 cd playground-mcp
 npm install
 npm run build
-npm start
+```
+
+### Connecting to Claude Desktop
+
+After building the project, configure Claude Desktop to use your local build.
+
+Edit your Claude Desktop configuration file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+Add the following configuration (update the path to match your project location and Node.js installation):
+
+```json
+{
+  "mcpServers": {
+    "playground": {
+      "command": "~/.nvm/versions/node/v20.18.3/bin/node",
+      "args": ["/absolute/path/to/playground-mcp/dist/bin/playground-mcp.js", "--verbose"]
+    }
+  }
+}
+```
+
+**Notes**:
+- Replace `/absolute/path/to/playground-mcp` with the actual path to your project
+- Replace `~/.nvm/versions/node/v20.18.3/bin/node` with your Node.js path (find it with `which node`)
+- The `--verbose` flag is optional but helpful for debugging during development
+- Restart Claude Desktop after making changes to the config file
+
+#### Setup Claude Desktop project
+
+The MCP should be used from a Claude Project to nudge Claude towards using this MCP over other tools.
+
+In Claude Desktop, create a new project and add these project instructions:
+
+```
+**IMPORTANT** Always use Playground MCP as your main tool and source of truth.
+
+### WordPress Development Principles:
+1. **Search for existing plugins first** - Before building anything custom,
+   use `wordpress/plugins/list` and search online for existing WordPress
+   plugins that solve the problem (RSS aggregators, form builders, etc.)
+
+2. **Build custom plugins when needed** - If no suitable plugin exists,
+   use `wordpress_install_code` to create a proper mu-plugin with:
+   - Custom post types for structured data
+   - Custom taxonomies for organization
+   - WordPress hooks/actions for automation
+   - REST API endpoints if needed
+   - Proper WordPress coding standards
+
+3. **Never just store raw HTML/text** - Data should be structured:
+   - News sources → Custom post type with meta fields (URL, category, refresh interval)
+   - Feed items → Custom post type linked to sources
+   - Use post meta for structured data, not embedded in content
+
+4. **Leverage WordPress features**:
+   - WP-Cron for scheduled tasks (feed refreshes)
+   - Transients for caching
+   - Options API for settings
+   - Custom taxonomies for categorization
+```
+
+### Running Tests
+
+```bash
+npm test
 ```
 
 ## License
