@@ -31,6 +31,7 @@ export function createDefaultBlueprint(options?: {
 
       // Install MCP Adapter plugin
       // TODO: Update URL once stable releases are available
+      // NOTE: This plugin has a session validation bug - see workaround in mcp-session.ts
       {
         step: 'installPlugin',
         pluginData: {

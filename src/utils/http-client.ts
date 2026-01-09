@@ -19,7 +19,17 @@ export interface JsonRpcResponse {
 }
 
 /**
- * Make a JSON-RPC request to an MCP endpoint
+ * Make a JSON-RPC 2.0 request to an MCP endpoint.
+ *
+ * Handles WordPress Playground auto-login cookies to prevent redirect loops.
+ * Throws on HTTP errors, redirects, or JSON-RPC error responses.
+ *
+ * @param endpoint - Full URL to the MCP endpoint
+ * @param method - JSON-RPC method name (e.g., 'tools/list')
+ * @param params - Optional parameters for the method
+ * @param timeoutMs - Request timeout in milliseconds (default: 30000)
+ * @returns The JSON-RPC result field
+ * @throws Error on network issues, HTTP errors, or RPC errors
  */
 export async function mcpRequest(
   endpoint: string,
@@ -44,10 +54,19 @@ export async function mcpRequest(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        // Include WordPress Playground auto-login cookie to bypass redirect loop
+        'Cookie': 'playground_auto_login_already_happened=1',
       },
       body: JSON.stringify(request),
       signal: controller.signal,
+      // Don't follow redirects - if we still get redirected with the cookie, it's an error
+      redirect: 'manual',
     });
+
+    // Check for unexpected redirects
+    if (response.status === 301 || response.status === 302) {
+      throw new Error(`Unexpected redirect to ${response.headers.get('location')} - auto-login cookie may not be working`);
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -68,7 +87,15 @@ export async function mcpRequest(
 }
 
 /**
- * Wait for an endpoint to become available with exponential backoff
+ * Wait for an endpoint to become available using exponential backoff.
+ *
+ * Checks if a URL responds to GET requests. Retries with increasing
+ * intervals (1.5x multiplier) up to maxIntervalMs.
+ *
+ * @param url - URL to check
+ * @param maxAttempts - Maximum number of attempts (default: 60)
+ * @param initialIntervalMs - Starting interval between attempts (default: 100ms)
+ * @returns true if endpoint became available, false if max attempts reached
  */
 export async function waitForEndpoint(
   url: string,
@@ -83,10 +110,14 @@ export async function waitForEndpoint(
       const response = await fetch(url, {
         method: 'GET',
         signal: AbortSignal.timeout(3000),
-        redirect: 'manual', // Don't follow redirects, just detect server is up
+        headers: {
+          // Include WordPress Playground auto-login cookie to bypass redirect loop
+          'Cookie': 'playground_auto_login_already_happened=1',
+        },
+        redirect: 'manual',
       });
-      // Any HTTP response means the server is up and responding
-      // This includes: 200 OK, 302 redirect, 404 not found, etc.
+      // Any HTTP response (including 200, 302, 404) means server is up
+      // 302 with auto-login cookie means the redirect is working correctly
       if (response.status > 0) {
         logger.debug(`Endpoint ready after ${attempt + 1} attempts`, { url });
         return true;

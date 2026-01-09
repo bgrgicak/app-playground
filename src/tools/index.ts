@@ -59,6 +59,19 @@ import {
   handleVerify,
 } from './playground-verify.js';
 
+import {
+  waitToolName,
+  waitToolDescription,
+  WaitArgsSchema,
+  handleWait,
+} from './playground-wait.js';
+
+import {
+  httpToolName,
+  httpToolDescription,
+  handleHttp,
+} from './wordpress-http.js';
+
 /**
  * Register all tools with the MCP server
  */
@@ -75,6 +88,7 @@ export function registerTools(
         name: z.string().optional().describe('Human-readable name for this instance'),
         php: z.enum(['8.4', '8.3', '8.2', '8.1', '8.0', '7.4']).optional().describe('PHP version to use (default: 8.3)'),
         wp: z.string().optional().describe('WordPress version to use (e.g., "latest", "6.5", "6.4"). Default: latest'),
+        wait_for_ready: z.boolean().optional().describe('If true (default), waits for instance to be ready. If false, returns immediately with status "starting"'),
       },
     },
     async (args) => {
@@ -245,5 +259,54 @@ export function registerTools(
     }
   );
 
-  logger.info('Registered 8 tools');
+  // playground/wait
+  server.registerTool(
+    waitToolName,
+    {
+      description: waitToolDescription,
+      inputSchema: {
+        instance_id: z.string().describe('The ID of the instance to wait for'),
+        timeout_seconds: z.number().optional().describe('Maximum time to wait in seconds (default: 120)'),
+      },
+    },
+    async (args) => {
+      logger.debug(`Handling ${waitToolName}`, args);
+      try {
+        const result = await handleWait(orchestrator, args);
+        return { content: [{ type: 'text', text: result }] };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`Error handling ${waitToolName}`, error);
+        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+      }
+    }
+  );
+
+  // wordpress/http
+  server.registerTool(
+    httpToolName,
+    {
+      description: httpToolDescription,
+      inputSchema: {
+        instance_id: z.string().describe('The ID of the Playground instance'),
+        method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']).describe('HTTP method'),
+        path: z.string().describe('REST API path (e.g., /wp-json/wp/v2/posts or /wp-json/custom/v1/data)'),
+        params: z.record(z.unknown()).optional().describe('Query parameters for GET requests'),
+        body: z.record(z.unknown()).optional().describe('Request body for POST/PUT/PATCH requests'),
+      },
+    },
+    async (args) => {
+      logger.debug(`Handling ${httpToolName}`, args);
+      try {
+        const result = await handleHttp(orchestrator, args);
+        return { content: [{ type: 'text', text: result }] };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.error(`Error handling ${httpToolName}`, error);
+        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+      }
+    }
+  );
+
+  logger.info('Registered 10 tools');
 }

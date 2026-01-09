@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { PlaygroundOrchestrator } from '../orchestrator/index.js';
-import { mcpRequest } from '../utils/http-client.js';
+import { mcpRequestWithSession } from '../utils/mcp-session.js';
+import { getBuiltInAbilities } from '../utils/wordpress-abilities.js';
 
 export const discoverToolName = 'wordpress_discover';
 
@@ -52,12 +53,75 @@ export async function handleDiscover(
     throw new Error(`Instance ${parsed.instance_id} not found`);
   }
 
-  // Call the instance's MCP Adapter to list tools
-  const result = await mcpRequest(
-    instance.mcpEndpoint,
-    'tools/list',
-    {}
-  );
+  if (instance.status !== 'running') {
+    return JSON.stringify({
+      error: `Instance ${parsed.instance_id} is not ready yet`,
+      current_status: instance.status,
+      message: 'Instance must have status "running" before discovering abilities. Use playground_status to check status, or use playground_verify to diagnose issues.',
+    }, null, 2);
+  }
 
-  return JSON.stringify(result, null, 2);
+  // Ensure MCP session is initialized
+  if (!instance.mcpSessionId) {
+    try {
+      await instance.initializeMcpSession();
+    } catch (error) {
+      return JSON.stringify({
+        error: 'Failed to initialize MCP session',
+        message: error instanceof Error ? error.message : String(error),
+        hint: 'The MCP Adapter may not be fully initialized. Wait a few seconds and try again.',
+      }, null, 2);
+    }
+  }
+
+  // MULTI-TIER ABILITY SYSTEM:
+  // Tier 1: Try MCP Adapter (with session fix) for custom abilities
+  // Tier 2: Fall back to built-in abilities (WordPress REST API wrappers)
+  //
+  // The session fix mu-plugin should resolve the session validation bug,
+  // allowing custom abilities registered via register_ability() to work.
+
+  // Try to get abilities from MCP Adapter first (Tier 3 - True MCP abilities)
+  if (instance.mcpSessionId) {
+    try {
+      const result = await mcpRequestWithSession(
+        instance.mcpEndpoint,
+        instance.mcpSessionId,
+        'tools/list',
+        {}
+      );
+
+      // If successful, return MCP Adapter abilities (including custom registered abilities)
+      const mcpResult = result as Record<string, unknown>;
+      return JSON.stringify({
+        ...mcpResult,
+        _meta: {
+          source: 'mcp-adapter',
+          note: 'Custom abilities registered via WordPress Abilities API. Session fix enabled.',
+        },
+      }, null, 2);
+    } catch (error) {
+      // MCP Adapter failed, fall through to built-in abilities
+      const message = error instanceof Error ? error.message : String(error);
+
+      // Log warning if MCP Adapter still fails (session fix should have resolved this)
+      console.warn('MCP Adapter still failing after session fix (falling back to built-in abilities):', message);
+    }
+  }
+
+  // Return built-in abilities that use WordPress REST API directly (Tier 1)
+  const abilities = getBuiltInAbilities();
+
+  return JSON.stringify({
+    tools: abilities.map(ability => ({
+      name: ability.name,
+      description: ability.description,
+      inputSchema: ability.inputSchema,
+    })),
+    _meta: {
+      source: 'built-in',
+      note: 'Built-in abilities using WordPress REST API. For custom abilities, they should be registered via register_ability() and exposed through MCP Adapter.',
+      hint: 'Use wordpress_http for custom REST endpoints not exposed as abilities.',
+    },
+  }, null, 2);
 }

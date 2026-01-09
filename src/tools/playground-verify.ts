@@ -88,8 +88,14 @@ export async function handleVerify(
     const webResponse = await fetch(instance.webUrl, {
       method: 'GET',
       signal: AbortSignal.timeout(5000),
+      headers: {
+        // Include WordPress Playground auto-login cookie to bypass redirect loop
+        'Cookie': 'playground_auto_login_already_happened=1',
+      },
+      redirect: 'manual',
     });
 
+    // Accept 200 OK or 302 redirect as successful (server is responding)
     if (webResponse.ok || webResponse.status === 302) {
       result.checks.web_server_responding = true;
     } else {
@@ -104,7 +110,11 @@ export async function handleVerify(
   try {
     const mcpResponse = await fetch(instance.mcpEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        // Include WordPress Playground auto-login cookie to bypass redirect loop
+        'Cookie': 'playground_auto_login_already_happened=1',
+      },
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: 1,
@@ -112,6 +122,7 @@ export async function handleVerify(
         params: {},
       }),
       signal: AbortSignal.timeout(5000),
+      redirect: 'manual',
     });
 
     if (mcpResponse.ok) {
@@ -122,6 +133,8 @@ export async function handleVerify(
       if (jsonResponse.result !== undefined || jsonResponse.error !== undefined) {
         result.checks.wordpress_initialized = true;
       }
+    } else if (mcpResponse.status === 302) {
+      result.errors.push(`MCP endpoint returned unexpected redirect - auto-login may not be working`);
     } else {
       result.errors.push(`MCP endpoint returned status ${mcpResponse.status}`);
     }
