@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:test-driven-development)",
+      "Skill(superpowers:test-driven-development:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx:*)",
+      "Bash(node_modules/.bin/wp-playground server:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:brainstorming:*)",
+      "Bash(node test-spawn.js:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(node test-mcp-fix.js:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "Bash(timeout 60 node:*)",
+      "Bash(tee:*)",
+      "Bash(pkill:*)",
+      "Bash(node test-complete-fix.js:*)",
+      "Bash(node test-simple.js:*)",
+      "Bash(node final-test.js:*)",
+      "Bash(curl:*)",
+      "Bash(node test-port-collision.js:*)",
+      "Bash(node test-orphaned-process.js:*)",
+      "Bash(node:*)",
+      "Bash(awk:*)",
+      "Bash(kill:*)",
+      "Bash(timeout 120 node:*)",
+      "Skill(superpowers:requesting-code-review)",
+      "Skill(superpowers:requesting-code-review:*)"
+    ]
+  }
+}
